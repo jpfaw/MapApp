@@ -18,35 +18,58 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        // Locarion Manager Settings
         locationManager = CLLocationManager()
         locationManager.delegate = self
+        locationManager.activityType = .automotiveNavigation
         locationManager.allowsBackgroundLocationUpdates = true
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest // 消費電力高め
-        
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+
+        // Map View Settings
         mapView.showsUserLocation = true
         mapView.userTrackingMode = MKUserTrackingMode.follow
+
+        // screen Size
+        let screenWidth:CGFloat = self.view.frame.width
+        let screenHeight:CGFloat = self.view.frame.height
+
+        // User Tracking Button
+        let trackingButton = MKUserTrackingButton(mapView: mapView)
+        let size:CGFloat = 35
+        let margin: CGFloat = 10
+        trackingButton.frame = CGRect(x: screenWidth-size-margin, y: screenHeight-size-margin,
+                                      width: trackingButton.bounds.width, height: trackingButton.bounds.height)
+        view.addSubview(trackingButton)
+
+        // Compass Button
+        mapView.showsCompass = false
+        let compassButton = MKCompassButton(mapView: mapView)
+        compassButton.compassVisibility = .adaptive
+        compassButton.frame = CGRect(x: screenWidth-40, y: 30,
+                                     width: compassButton.bounds.width, height: compassButton.bounds.height)
+        view.addSubview(compassButton)
+
+        // Scale View
+        let scale = MKScaleView(mapView: mapView)
+        scale.legendAlignment = .leading
+        scale.frame = CGRect(x: 10, y: 30, width: scale.bounds.width, height: scale.bounds.height)
+        view.addSubview(scale)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    @IBAction func tappedMyLocationButton(_ sender: Any) {
-        mapView.userTrackingMode = MKUserTrackingMode.follow
-        mapView.setCenter(mapView.userLocation.coordinate, animated: true)
-    }
-    
 }
 
 extension ViewController: CLLocationManagerDelegate {
-    
+
     // 権限の状態について確認する
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         switch status {
         case .notDetermined:
-            // 未選択なので、許可アラートを出す
+            // 未選択なので、許可アラートを出す(アラートは別実装）
             locationManager.requestAlwaysAuthorization()
         case .restricted:
             pushAlert(title: "位置情報が利用できません", message: "位置情報を取得できません")
@@ -64,7 +87,7 @@ extension ViewController: CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-    
+
         for location in locations {
             // 日本時間を表示させる
             let df = DateFormatter()

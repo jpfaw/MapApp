@@ -4,12 +4,20 @@
 MapViewとCoreLocationについての使い方の確認プロジェクト  
 MapViewはただの地図で、その上にユーザの位置情報とかを扱いたいんだったらCoreLocationを使えって話。  
 ここでは位置情報の利用を「常に許可」にする。  
-iOSを想定。
+
+自分の実行環境
+
+|  Name  |  Version  |  
+| :--- | :--- |  
+|  Xcode  |  9.4  |  
+|  Swift  |  4.1  |  
+| iOS | 11.4 |  
 
 ## Description
 現状は位置情報の利用を認証して現在地を取得して追従させているだけ。  
 位置情報の利用権限まわりがややこしかった。  
-以下に書くのはただの感想なので、特に読まなくていいです。
+以下に書くのはただの感想的なメモなので、特に読まなくていいです。  
+長くなるから多分次の更新でタイプの列挙は全部リファレンスのリンクにする。  
 
 ## info.plist
 info.plistに書く内容でちょっと詰まった。  
@@ -47,26 +55,83 @@ CLLocationManagerDelegateの1つ。アプリケーションが利用できる位
 バックグラウンドモードでも位置情報を手に入れたい場合はこいつをtrueにしてやる必要がある。  
 あと忘れちゃならないのが「TARGETS -> Capabilities -> Background Modes」をONにして、Location updatesにチェックを入れる必要がある。
 
+### CLActivityType
+ナビゲーションのタイプを決めて、位置情報の更新頻度を決める
+
+1. other  
+その他。これがデフォルトらしい
+1. automotiveNavigation  
+自動車用
+1. fitness  
+歩行・走行・サイクリング用
+1. otherNavigation  
+自動車でないその他の車両（電車とか）
+
+
+### desiredAccuracy
+位置情報の精度を決めるプロパティ  
+精度がいいほど電池消費量が多いらしい
+
+1. kCLLocationAccuracyBestForNavigation  
+ナビゲーションに最適らしい
+1. kCLLocationAccuracyBest  
+一番いい精度
+1. kCLLocationAccuracyNearestTenMeters  
+10メートル以内の精度
+1. kCLLocationAccuracyHundredMeters  
+100メートル以内の精度
+1. kCLLocationAccuracyKilometer  
+1キロメートル以内の精度
+1. kCLLocationAccuracyThreeKilometers  
+3キロメートル以内の精度
+
 
 ## MapView
 ### showsUserLocation
-MKMapViewのプロパティの一つ  
 地図上にユーザの位置を表示させたいときはこれをtrueにする。デフォルトはfalseなので注意。  
 storyboar上からも設定できる。(Attributes inspector -> Map View -> User Location)  
 
 ### userTrackingMode
-MKMapViewのプロパティの一つ  
 こいつの設定次第ではmap viewで地図の中心をユーザの場所にして、更新する。  
 その設定はMKUserTrackingModeの中から選ぶ(こいつがenum)
-1. none  : 追跡しない
-1. follow  : 追跡する
-1. followWithHeading  : 追跡するし、向いている方向も表示する
+1. none  
+追跡しない
+1. follow  
+追跡する
+1. followWithHeading  
+追跡するし、向いている方向も表示する
+
+### MKUserTrackingButton
+ユーザがトラッキングのモードを変更できるボタン   
+ただ、これを設置すると最初からトラッキングする設定が効かなくなる気がする。  
+自分でボタン追加したほうがいいかも?
+
+### MKCompassButton
+コンパスのボタン  
+自分でViewを追加することになるので、最初からマップにあるコンパスは見えないようにしよう
+```swift:ViewController.swift
+mapView.showsCompass = false
+```
+compassVisibilityは表示オプションで、3種類ある。
+
+1. hidden  
+非表示
+1. visible  
+表示
+1. adaptive  
+地図の上が北でないときに表示。タップしたら地図は北を向き、コンパスは非表示になる
+
+### MKScaleView
+地図のスケールを表示するView
+legendAlignmentは表示オプションで、2種類ある。
+
+1. leading  
+0が左側にある
+1. trailing  
+0が右側にある
+
+
 
 ## 今後の予定
-以下の項目はiOS11でアップデートされた機能を使う予定  
-- コンパスを追加する(MKCompassButton)  
-- スケールビューを追加する(MKScaleView)  
-- ユーザトラッキングをMKUserTrackingButtonにする  
 - mapにピンを立てる(MKMarkerAnnotationView)   
-
-MKMarkerAnnotationViewに関しては様々な機能があるので色々試したい
+MKMarkerAnnotationViewは様々な機能があるので色々試したい
