@@ -31,7 +31,8 @@ iOS11からは位置情報を利用する場合NSLocationWhenInUseUsageDescripti
 以上3つをセットすること。  
 
 ## CoreLocation
-### didChangeAuthorization
+CoreLocationってタイトルだけど最初はCLLocationManagerDelegateで、他はCLLocationManagerの話。
+### locationManager(_:didChangeAuthorization:)
 CLLocationManagerDelegateの1つ。アプリケーションが利用できる位置情報の権限が変更されると呼ばれる。  
 ここでのステータスは5つある -> [CLAuthorizationStatus](https://developer.apple.com/documentation/corelocation/clauthorizationstatus)  
 以下の二つは両方位置情報が使えないけど、若干違うっぽい
@@ -47,12 +48,12 @@ CLLocationManagerDelegateの1つ。アプリケーションが利用できる位
 ### desiredAccuracy
 ナビゲーションのタイプを決めて、位置情報の更新頻度を決める -> [CLActivityType](https://developer.apple.com/documentation/corelocation/clactivitytype)
 
-
 ### desiredAccuracy
 位置情報の精度を決めるプロパティ  -> [CLLocationAccuracy](https://developer.apple.com/documentation/corelocation/cllocationaccuracy)  
 精度がいいほど電池消費量が多いらしい
 
 ## MapKit
+上二つは他はMKMapViewの話。
 ### showsUserLocation
 地図上にユーザの位置を表示させたいときはこれをtrueにする。デフォルトはfalseなので注意。  
 storyboar上からも設定できる。(Attributes inspector -> Map View -> User Location)  
