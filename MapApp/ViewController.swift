@@ -15,8 +15,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
 
     var locationManager: CLLocationManager!
-    var count: Int = 0
-    var userLocation: CLLocation!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,13 +56,6 @@ class ViewController: UIViewController {
         scaleView.legendAlignment = .leading
         scaleView.frame = CGRect(x: 10, y: 30, width: scaleView.bounds.width, height: scaleView.bounds.height)
         view.addSubview(scaleView)
-        
-        // Annotation Settings
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = userLocation.coordinate
-        annotation.title = "title"
-        annotation.subtitle = "subtitle"
-        mapView.addAnnotation(annotation)
     }
 
     override func didReceiveMemoryWarning() {
@@ -79,11 +70,11 @@ extension ViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         switch status {
         case .notDetermined:
-            // 未選択なので、許可アラートを出す(アラートは別実装）
+            // 未選択なので、許可アラートを出す
             locationManager.requestAlwaysAuthorization()
         case .restricted:
+            // pushAlertはアラート出すためのメソッドでAlertController.swiftで実装
             pushAlert(title: "位置情報が利用できません", message: "位置情報を取得できません")
-            
         case .denied:
             pushAlert(title: "位置情報利用が「許可しない」設定になっています",
                       message: "設定 > プライバシー > 位置情報サービス > MapApp で、位置情報サービスの利用を許可して下さい")
@@ -103,18 +94,23 @@ extension ViewController: CLLocationManagerDelegate {
             let df = DateFormatter()
             df.dateFormat = "yyyy/MM/dd HH:mm:ss.SSS"
             print("緯度:\(location.coordinate.latitude) 経度:\(location.coordinate.longitude) 取得時刻:\(df.string(from: location.timestamp))")
-            userLocation = location
+
+            // Annotation Settings
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = location.coordinate
+            annotation.title = "title"
+            annotation.subtitle = "subtitle"
+            mapView.addAnnotation(annotation)
         }
     }
-    
+
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("位置情報の取得に失敗")
     }
-
 }
 
 extension ViewController: MKMapViewDelegate {
-    
+
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         if annotation is MKUserLocation { // 自分の位置もピンになることを避ける
             return nil
@@ -129,15 +125,15 @@ extension ViewController: MKMapViewDelegate {
             return annotationView
         }
     }
-    
+
     func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
         // Annotationを追加するときに呼ばれる
     }
-    
+
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         // Annotationを選択すると呼ばれる
     }
-    
+
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
         // Annotationの選択を解除すると呼ばれる
         // 他のAnnotationを選ぶときも呼ばれる その場合viewの中身は事前に選んでたMKAnnotationView
